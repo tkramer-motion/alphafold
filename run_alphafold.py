@@ -388,7 +388,7 @@ def predict_structure(
 
   # Write out relaxed PDBs in rank order.
   for idx, model_name in enumerate(ranked_order):
-    ranked_output_path = os.path.join(output_dir, f'ranked_{idx}.pdb')
+    ranked_output_path = os.path.join(output_dir, f'ranked_{FLAGS.suffix}_{idx}.pdb')
     with open(ranked_output_path, 'w') as f:
       if model_name in relaxed_pdbs:
         f.write(relaxed_pdbs[model_name])
@@ -535,7 +535,7 @@ def main(argv):
         model_name=model_name, data_dir=FLAGS.data_dir)
     model_runner = model.RunModel(model_config, model_params)
     for i in range(num_predictions_per_model):
-      model_runners[f'{model_name}_pred_{i}'] = model_runner
+      model_runners[f'{model_name}_{FLAGS.suffix}_{i}'] = model_runner
 
   logging.info('Have %d models: %s', len(model_runners),
                list(model_runners.keys()))
