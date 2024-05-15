@@ -288,20 +288,20 @@ def main(fasta_path: str, output_dir:str, suffix: str, num_multimer_predictions_
     num_ensemble = 1
 
     template_searcher = hmmsearch.Hmmsearch(
-        binary_path="/opt/conda/bin/hmmsearch",
-        hmmbuild_binary_path="/opt/conda/bin/hmmbuild",
+        binary_path="/usr/bin/hmmsearch",
+        hmmbuild_binary_path="/usr/bin/hmmbuild",
         database_path="/data/pdb_seqres/pdb_seqres.txt")
     template_featurizer = templates.HmmsearchHitFeaturizer(
         mmcif_dir="/data/pdb_mmcif/mmcif_files",
         max_template_date="2024-05-15",
         max_hits=MAX_TEMPLATE_HITS,
-        kalign_binary_path="/opt/conda/bin/kalign",
+        kalign_binary_path="/usr/bin/kalign",
         release_dates_path=None,
         obsolete_pdbs_path="/data/pdb_mmcif/obsolete.dat")
 
     monomer_data_pipeline = pipeline.DataPipeline(
-        jackhmmer_binary_path="/opt/conda/bin/jackhmmer",
-        hhblits_binary_path="/opt/conda/bin/hhblits",
+        jackhmmer_binary_path="/usr/bin/jackhmmer",
+        hhblits_binary_path="/usr/bin/hhblits",
         uniref90_database_path="/data/uniref90/uniref90.fasta",
         mgnify_database_path="/data/mgnify/mgy_clusters_2022_05.fa",
         bfd_database_path="/data/bfd/bfd_metaclust_clu_complete_id30_c90_final_seq.sorted_opt",
@@ -314,7 +314,7 @@ def main(fasta_path: str, output_dir:str, suffix: str, num_multimer_predictions_
 
     data_pipeline = pipeline_multimer.DataPipeline(
         monomer_data_pipeline=monomer_data_pipeline,
-        jackhmmer_binary_path="/opt/conda/bin/jackhmmer",
+        jackhmmer_binary_path="/usr/bin/jackhmmer",
         uniprot_database_path="/data/uniprot/uniprot.fasta",
         use_precomputed_msas=True)
 
@@ -371,4 +371,4 @@ def main(fasta_path: str, output_dir:str, suffix: str, num_multimer_predictions_
 
 if __name__ == '__main__':
     with tempfile.TemporaryDirectory() as tmpdirname:
-        results = main("sas_vhhs_20240426.fasta", "sas-vhhs-20240426", tmpdirname)
+        results = main("/blah/sas_vhhs_20240426.fasta", "/blah/sas-vhhs-20240426", tmpdirname)
