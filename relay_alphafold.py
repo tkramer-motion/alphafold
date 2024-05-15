@@ -283,8 +283,14 @@ def predict_structure(
     return {label: ranking_confidences, 'order': ranked_order}
 
 
-def main(fasta_path: str, output_dir: str, suffix: str, num_multimer_predictions_per_model: int = 5, dropout: bool = False, max_recycles: int = 3, no_templates: bool = False) -> \
-dict[str, Any]:
+def main(fasta_path: str,
+         output_dir: str,
+         suffix: str,
+         num_multimer_predictions_per_model: int = 5,
+         dropout: bool = False,
+         max_recycles: int = 3,
+         no_templates: bool = False,
+         model_preset: str = "multimer") -> dict[str, Any]:
     num_ensemble = 1
 
     template_searcher = hmmsearch.Hmmsearch(
@@ -320,7 +326,7 @@ dict[str, Any]:
         use_precomputed_msas=True)
 
     model_runners = {}
-    model_names = config.MODEL_PRESETS["multimer"]
+    model_names = config.MODEL_PRESETS[model_preset]
     for model_name in model_names:
         model_config = config.model_config(model_name)
         model_config.model.num_ensemble_eval = num_ensemble
@@ -384,6 +390,7 @@ def got_high_confidence_result(results: dict[str, Any]) -> bool:
 if __name__ == '__main__':
     results = main("/blah/sas_vhhs_20240426.fasta", "/blah/", "plain")
     if not got_high_confidence_result(results):
-        results = main("/blah/sas_vhhs_20240426.fasta", "/blah/", "dropout_9", 200, True, 9)
+        results = main("/blah/sas_vhhs_20240426.fasta", "/blah/", "dropout_9", 200, True, 9, True)
         if not got_high_confidence_result(results):
-            results = main("/blah/sas_vhhs_20240426.fasta", "/blah/", "dropout", 200, True, 21)
+            results = main("/blah/sas_vhhs_20240426.fasta", "/blah/", "dropout_21", 200, True, 21, True, "multimer_v2")
+            print(results)
