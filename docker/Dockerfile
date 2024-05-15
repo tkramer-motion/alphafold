@@ -71,6 +71,8 @@ RUN pip3 install --upgrade pip --no-cache-dir \
       jaxlib==0.4.26+cuda12.cudnn89 \
       -f https://storage.googleapis.com/jax-releases/jax_cuda_releases.html
 
+RUN pip3 install --no-cache-dir smart_open[s3]
+
 # Add SETUID bit to the ldconfig binary so that non-root users can run it.
 RUN chmod u+s /sbin/ldconfig.real
 
