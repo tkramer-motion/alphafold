@@ -124,9 +124,11 @@ class DataPipeline:
                use_small_bfd: bool,
                mgnify_max_hits: int = 501,
                uniref_max_hits: int = 10000,
-               use_precomputed_msas: bool = False):
+               use_precomputed_msas: bool = False,
+               no_templates: bool = False):
     """Initializes the data pipeline."""
     self._use_small_bfd = use_small_bfd
+    self.no_templates = no_templates
     self.jackhmmer_uniref90_runner = jackhmmer.Jackhmmer(
         binary_path=jackhmmer_binary_path,
         database_path=uniref90_database_path)
@@ -198,8 +200,12 @@ class DataPipeline:
     uniref90_msa = parsers.parse_stockholm(jackhmmer_uniref90_result['sto'])
     mgnify_msa = parsers.parse_stockholm(jackhmmer_mgnify_result['sto'])
 
-    pdb_template_hits = self.template_searcher.get_template_hits(
-        output_string=pdb_templates_result, input_sequence=input_sequence)
+    if self.no_templates:
+        logging.info('Using no template information at all')
+        pdb_template_hits = []
+    else:
+        pdb_template_hits = self.template_searcher.get_template_hits(
+            output_string=pdb_templates_result, input_sequence=input_sequence)
 
     if self._use_small_bfd:
       bfd_out_path = os.path.join(msa_output_dir, 'small_bfd_hits.sto')

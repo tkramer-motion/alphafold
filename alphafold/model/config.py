@@ -14,8 +14,10 @@
 """Model config."""
 
 import copy
-from alphafold.model.tf import shape_placeholders
+
 import ml_collections
+
+from alphafold.model.tf import shape_placeholders
 
 NUM_RES = shape_placeholders.NUM_RES
 NUM_MSA_SEQ = shape_placeholders.NUM_MSA_SEQ
@@ -24,16 +26,16 @@ NUM_TEMPLATES = shape_placeholders.NUM_TEMPLATES
 
 
 def model_config(name: str) -> ml_collections.ConfigDict:
-  """Get the ConfigDict of a CASP14 model."""
+    """Get the ConfigDict of a CASP14 model."""
 
-  if name not in CONFIG_DIFFS:
-    raise ValueError(f'Invalid model name {name}.')
-  if 'multimer' in name:
-    cfg = copy.deepcopy(CONFIG_MULTIMER)
-  else:
-    cfg = copy.deepcopy(CONFIG)
-  cfg.update_from_flattened_dict(CONFIG_DIFFS[name])
-  return cfg
+    if name not in CONFIG_DIFFS:
+        raise ValueError(f'Invalid model name {name}.')
+    if 'multimer' in name:
+        cfg = copy.deepcopy(CONFIG_MULTIMER)
+    else:
+        cfg = copy.deepcopy(CONFIG)
+    cfg.update_from_flattened_dict(CONFIG_DIFFS[name])
+    return cfg
 
 
 MODEL_PRESETS = {
@@ -58,9 +60,39 @@ MODEL_PRESETS = {
         'model_4_multimer_v3',
         'model_5_multimer_v3',
     ),
+    'multimer_v2': (
+        'model_1_multimer_v2',
+        'model_2_multimer_v2',
+        'model_3_multimer_v2',
+        'model_4_multimer_v2',
+        'model_5_multimer_v2',
+    ),
+    'multimer_v1': (
+        'model_1_multimer',
+        'model_2_multimer',
+        'model_3_multimer',
+        'model_4_multimer',
+        'model_5_multimer',
+    ),
+    'multimer_all': (
+        'model_1_multimer',
+        'model_2_multimer',
+        'model_3_multimer',
+        'model_4_multimer',
+        'model_5_multimer',
+        'model_1_multimer_v2',
+        'model_2_multimer_v2',
+        'model_3_multimer_v2',
+        'model_4_multimer_v2',
+        'model_5_multimer_v2',
+        'model_1_multimer_v3',
+        'model_2_multimer_v3',
+        'model_3_multimer_v3',
+        'model_4_multimer_v3',
+        'model_5_multimer_v3',
+    ),
 }
 MODEL_PRESETS['monomer_casp14'] = MODEL_PRESETS['monomer']
-
 
 CONFIG_DIFFS = {
     'model_1': {
@@ -143,7 +175,6 @@ CONFIG_DIFFS.update(
     {f'model_{i}_multimer': common_updates for i in range(1, 6)})
 CONFIG_DIFFS.update(
     {f'model_{i}_multimer_v2': common_updates for i in range(1, 6)})
-
 
 CONFIG = ml_collections.ConfigDict({
     'data': {
@@ -459,7 +490,6 @@ CONFIG = ml_collections.ConfigDict({
         'resample_msa_in_recycling': True
     },
 })
-
 
 CONFIG_MULTIMER = ml_collections.ConfigDict({
     'model': {

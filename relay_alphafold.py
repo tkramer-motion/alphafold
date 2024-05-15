@@ -4,7 +4,6 @@ import pathlib
 import pickle
 import random
 import sys
-import tempfile
 import time
 from typing import Any, Dict, Union
 
@@ -114,8 +113,8 @@ def predict_structure(
         random_seed: int,
         models_to_relax: ModelsToRelax,
         model_type: str,
-        suffix:str
-):
+        suffix: str
+) -> dict[str, Any]:
     """Predicts structure using AlphaFold for the given sequence."""
     logging.info('Predicting %s', fasta_name)
     timings = {}
@@ -284,7 +283,8 @@ def predict_structure(
     return {label: ranking_confidences, 'order': ranked_order}
 
 
-def main(fasta_path: str, output_dir:str, suffix: str, num_multimer_predictions_per_model: int = 5, dropout: bool = False, max_recycles: int = 3):
+def main(fasta_path: str, output_dir: str, suffix: str, num_multimer_predictions_per_model: int = 5, dropout: bool = False, max_recycles: int = 3, no_templates: bool = False) -> \
+dict[str, Any]:
     num_ensemble = 1
 
     template_searcher = hmmsearch.Hmmsearch(
@@ -310,7 +310,8 @@ def main(fasta_path: str, output_dir:str, suffix: str, num_multimer_predictions_
         template_searcher=template_searcher,
         template_featurizer=template_featurizer,
         use_small_bfd=False,
-        use_precomputed_msas=True)
+        use_precomputed_msas=True,
+        no_templates=no_templates)
 
     data_pipeline = pipeline_multimer.DataPipeline(
         monomer_data_pipeline=monomer_data_pipeline,
@@ -325,7 +326,6 @@ def main(fasta_path: str, output_dir:str, suffix: str, num_multimer_predictions_
         model_config.model.num_ensemble_eval = num_ensemble
 
         if dropout:
-            # dropout set is_training to True and during training models can be assembled. Here num_ensemble will always be 1 though. But unless this variable is set the program will crash.
             model_config.model.num_ensemble_train = num_ensemble
             model_config.model.heads.structure_module.dropout = 0.0
 
@@ -335,7 +335,7 @@ def main(fasta_path: str, output_dir:str, suffix: str, num_multimer_predictions_
 
         model_params = data.get_model_haiku_params(
             model_name=model_name, data_dir="/data/")
-        model_runner = model.RunModel(model_config, model_params)
+        model_runner = model.RunModel(model_config, model_params, is_training=dropout)
         for i in range(num_multimer_predictions_per_model):
             model_runners[f'{model_name}_{suffix}_{i}'] = model_runner
 
@@ -369,6 +369,21 @@ def main(fasta_path: str, output_dir:str, suffix: str, num_multimer_predictions_
     )
 
 
+def got_high_confidence_result(results: dict[str, Any]) -> bool:
+    rows = []
+    for model_name, confidence in results["iptm+ptm"].items():
+        rows.append((model_name, confidence))
+    rows.sort(key=lambda row: row[1], reverse=True)
+
+    if rows[0][1] >= .8:
+        return True
+    else:
+        return False
+
+
 if __name__ == '__main__':
-    with tempfile.TemporaryDirectory() as tmpdirname:
-        results = main("/blah/sas_vhhs_20240426.fasta", "/blah/sas-vhhs-20240426", tmpdirname)
+    results = main("/blah/sas_vhhs_20240426.fasta", "/blah/", "plain")
+    if not got_high_confidence_result(results):
+        results = main("/blah/sas_vhhs_20240426.fasta", "/blah/", "dropout_9", 200, True, 9)
+        if not got_high_confidence_result(results):
+            results = main("/blah/sas_vhhs_20240426.fasta", "/blah/", "dropout", 200, True, 21)
