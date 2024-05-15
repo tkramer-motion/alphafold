@@ -375,26 +375,26 @@ def main(fasta_path: str,
     )
 
 
-def got_high_confidence_result(results: dict[str, Any]) -> bool:
+def get_high_confidence_prediction(results: dict[str, Any]) -> float:
     rows = []
     for model_name, confidence in results["iptm+ptm"].items():
         rows.append((model_name, confidence))
     rows.sort(key=lambda row: row[1], reverse=True)
 
-    if rows[0][1] >= .8:
-        return True
-    else:
-        return False
+    return rows[0][1]
 
 
 if __name__ == '__main__':
+    cutoff = 0.8
     total_results = dict()
     results = main("/blah/example.fasta", "/blah/", "plain")
     total_results.update(results)
-    if not got_high_confidence_result(results):
+    top_score = get_high_confidence_prediction(results)
+    if top_score < cutoff:
         results = main("/blah/example.fasta", "/blah/", "dropout_9", 200, True, 9, True)
         total_results.update(results)
-        if not got_high_confidence_result(results):
+        top_score = get_high_confidence_prediction(results)
+        if top_score < cutoff:
             results = main("/blah/example.fasta", "/blah/", "dropout_21", 200, True, 21, True, "multimer_v2")
             total_results.update(results)
-    print(total_results)
+    logging.info(f"Got a high confidence score of {get_high_confidence_prediction(total_results)}")
