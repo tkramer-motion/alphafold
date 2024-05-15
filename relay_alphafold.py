@@ -398,10 +398,10 @@ if __name__ == '__main__':
             with zipfile.ZipFile(zipf, mode="w", compression=zipfile.ZIP_DEFLATED) as archive:
                 for model_name, confidence in total_results["iptm+ptm"].items():
                     if confidence >= cutoff:
-                        if os.path.exists(f"relaxed_{model_name}.pdb"):
-                            archive.write(f"relaxed_{model_name}.pdb")
-                        if os.path.exists(f"unrelaxed{model_name}.pdb"):
-                            archive.write(f"unrelaxed{model_name}.pdb")
+                        if os.path.exists(os.path.join(output_dir, "example", f"relaxed_{model_name}.pdb")):
+                            archive.write(os.path.join(output_dir, "example", f"relaxed_{model_name}.pdb"))
+                        if os.path.exists(os.path.join(output_dir, "example", f"unrelaxed{model_name}.pdb")):
+                            archive.write(os.path.join(output_dir, "example", f"unrelaxed{model_name}.pdb"))
 
     with smart_open.open(json_file, "w") as f:
         json.dump(total_results, f)

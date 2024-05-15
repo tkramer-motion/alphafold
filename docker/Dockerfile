@@ -30,6 +30,7 @@ RUN apt-get update \
         hmmer \
         kalign \
         tzdata \
+        awscli \
         wget \
     && rm -rf /var/lib/apt/lists/* \
     && apt-get autoremove -y \
