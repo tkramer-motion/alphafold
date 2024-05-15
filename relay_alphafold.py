@@ -388,9 +388,13 @@ def got_high_confidence_result(results: dict[str, Any]) -> bool:
 
 
 if __name__ == '__main__':
+    total_results = dict()
     results = main("/blah/sas_vhhs_20240426.fasta", "/blah/", "plain")
+    total_results.update(results)
     if not got_high_confidence_result(results):
         results = main("/blah/sas_vhhs_20240426.fasta", "/blah/", "dropout_9", 200, True, 9, True)
+        total_results.update(results)
         if not got_high_confidence_result(results):
             results = main("/blah/sas_vhhs_20240426.fasta", "/blah/", "dropout_21", 200, True, 21, True, "multimer_v2")
-            print(results)
+            total_results.update(results)
+    print(total_results)
