@@ -1,14 +1,17 @@
 import enum
+import json
 import os
 import pathlib
 import pickle
 import random
 import sys
 import time
+import zipfile
 from typing import Any, Dict, Union
 
 import jax.numpy as jnp
 import numpy as np
+import smart_open
 from absl import logging
 
 from alphafold.common import confidence, protein, residue_constants
@@ -266,19 +269,6 @@ def predict_structure(
             else:
                 f.write(unrelaxed_pdbs[model_name])
 
-        if model_name in relaxed_pdbs:
-            protein_instance = protein.from_pdb_string(relaxed_pdbs[model_name])
-        else:
-            protein_instance = protein.from_pdb_string(unrelaxed_pdbs[model_name])
-
-        _save_mmcif_file(
-            prot=protein_instance,
-            output_dir=output_dir,
-            model_name=f'ranked_{idx}',
-            file_id=str(idx),
-            model_type=model_type,
-        )
-
     label = 'iptm+ptm' if 'iptm' in prediction_result else 'plddts'
     return {label: ranking_confidences, 'order': ranked_order}
 
@@ -385,16 +375,33 @@ def get_high_confidence_prediction(results: dict[str, Any]) -> float:
 
 
 if __name__ == '__main__':
-    cutoff = 0.8
+    output_dir = sys.argv[1]
+    cutoff = float(sys.argv[2])
+    fasta = sys.argv[3]
+    zip_file = sys.argv[4]
+    json_file = sys.argv[5]
     total_results = dict()
-    results = main("/blah/example.fasta", "/blah/", "plain")
+    results = main(fasta, output_dir, "plain", 10)
     total_results.update(results)
     top_score = get_high_confidence_prediction(results)
     if top_score < cutoff:
-        results = main("/blah/example.fasta", "/blah/", "dropout_9", 200, True, 9, True)
+        results = main(fasta, output_dir, "dropout_9", 200, True, 9, True)
         total_results.update(results)
         top_score = get_high_confidence_prediction(results)
         if top_score < cutoff:
-            results = main("/blah/example.fasta", "/blah/", "dropout_21", 200, True, 21, True, "multimer_v2")
+            results = main(fasta, output_dir, "dropout_21", 200, True, 21, True, "multimer_v2")
             total_results.update(results)
     logging.info(f"Got a high confidence score of {get_high_confidence_prediction(total_results)}")
+
+    if top_score >= cutoff:
+        with smart_open.open(zip_file, "wb") as zipf:
+            with zipfile.ZipFile(zipf, mode="w", compression=zipfile.ZIP_DEFLATED) as archive:
+                for model_name, confidence in total_results["iptm+ptm"].items():
+                    if confidence >= cutoff:
+                        if os.path.exists(f"relaxed_{model_name}.pdb"):
+                            archive.write(f"relaxed_{model_name}.pdb")
+                        if os.path.exists(f"unrelaxed{model_name}.pdb"):
+                            archive.write(f"unrelaxed{model_name}.pdb")
+
+    with smart_open.open(json_file, "w") as f:
+        json.dump(total_results, f)
