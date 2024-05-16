@@ -380,17 +380,17 @@ if __name__ == '__main__':
     fasta = sys.argv[3]
     zip_file = sys.argv[4]
     json_file = sys.argv[5]
-    total_results = dict()
-    results = main(fasta, output_dir, "plain", 10)
-    total_results.update(results)
+    total_results = {"iptm+ptm": {}}
+    results = main(fasta, output_dir, "plain", 20)
+    total_results["iptm+ptm"].update(results)
     top_score = get_high_confidence_prediction(results)
     if top_score < cutoff:
-        results = main(fasta, output_dir, "dropout_9", 20, True, 9, True)
-        total_results.update(results)
+        results = main(fasta, output_dir, "dropout_9", 40, True, 9, True)
+        total_results["iptm+ptm"].update(results)
         top_score = get_high_confidence_prediction(results)
         if top_score < cutoff:
-            results = main(fasta, output_dir, "dropout_21", 20, True, 21, True, "multimer_v2")
-            total_results.update(results)
+            results = main(fasta, output_dir, "dropout_21", 40, True, 21, True, "multimer_v2")
+            total_results["iptm+ptm"].update(results)
     logging.info(f"Got a high confidence score of {get_high_confidence_prediction(total_results)}")
 
     if top_score >= cutoff:
