@@ -389,8 +389,14 @@ if __name__ == '__main__':
         total_results["iptm+ptm"].update(results)
         top_score = get_high_confidence_prediction(results)
         if top_score < cutoff:
-            results = main(fasta, output_dir, "dropout_21", 40, True, 21, True, "multimer_v2")
+            results = main(fasta, output_dir, "dropoutv2_21", 40, True, 21, True, "multimer_v2")
             total_results["iptm+ptm"].update(results)
+            if top_score < cutoff:
+                results = main(fasta, output_dir, "dropoutv1_9", 40, True, 9, True, "multimer_v1")
+                total_results["iptm+ptm"].update(results)
+                if top_score < cutoff:
+                    results = main(fasta, output_dir, "dropoutv1_21", 40, True, 21, True, "multimer_v1")
+                    total_results["iptm+ptm"].update(results)
     logging.info(f"Got a high confidence score of {get_high_confidence_prediction(total_results)}")
 
     if top_score >= cutoff:
