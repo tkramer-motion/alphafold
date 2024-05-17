@@ -381,22 +381,30 @@ if __name__ == '__main__':
     zip_file = sys.argv[4]
     json_file = sys.argv[5]
     total_results = {"iptm+ptm": {}}
-    results = main(fasta, output_dir, "plain", 20)
-    total_results["iptm+ptm"].update(results)
+    results = main(fasta, output_dir, "plain", 50)
+    total_results["iptm+ptm"].update(results["iptm+ptm"])
     top_score = get_high_confidence_prediction(results)
+    logging.info(f"Got a high confidence score of {top_score} from plain")
     if top_score < cutoff:
-        results = main(fasta, output_dir, "dropout_9", 40, True, 9, True)
-        total_results["iptm+ptm"].update(results)
+        results = main(fasta, output_dir, "dropout_9", 50, True, 9, True)
+        total_results["iptm+ptm"].update(results["iptm+ptm"])
         top_score = get_high_confidence_prediction(results)
+        logging.info(f"Got a high confidence score of {top_score} from dropout_9")
         if top_score < cutoff:
-            results = main(fasta, output_dir, "dropoutv2_21", 40, True, 21, True, "multimer_v2")
-            total_results["iptm+ptm"].update(results)
+            results = main(fasta, output_dir, "dropoutv2_21", 50, True, 21, True, "multimer_v2")
+            total_results["iptm+ptm"].update(results["iptm+ptm"])
+            top_score = get_high_confidence_prediction(results)
+            logging.info(f"Got a high confidence score of {top_score} from dropout_v2_21")
             if top_score < cutoff:
-                results = main(fasta, output_dir, "dropoutv1_9", 40, True, 9, True, "multimer_v1")
-                total_results["iptm+ptm"].update(results)
+                results = main(fasta, output_dir, "dropoutv1_9", 50, True, 9, True, "multimer_v1")
+                total_results["iptm+ptm"].update(results["iptm+ptm"])
+                top_score = get_high_confidence_prediction(results)
+                logging.info(f"Got a high confidence score of {top_score} from dropout_v1_9")
                 if top_score < cutoff:
-                    results = main(fasta, output_dir, "dropoutv1_21", 40, True, 21, True, "multimer_v1")
-                    total_results["iptm+ptm"].update(results)
+                    results = main(fasta, output_dir, "dropoutv1_21", 50, True, 21, True, "multimer_v1")
+                    total_results["iptm+ptm"].update(results["iptm+ptm"])
+                    top_score = get_high_confidence_prediction(results)
+                    logging.info(f"Got a high confidence score of {top_score} from dropout_v1_21")
     logging.info(f"Got a high confidence score of {get_high_confidence_prediction(total_results)}")
 
     if top_score >= cutoff:
