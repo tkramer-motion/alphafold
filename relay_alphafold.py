@@ -405,7 +405,8 @@ if __name__ == '__main__':
                     total_results["iptm+ptm"].update(results["iptm+ptm"])
                     top_score = get_high_confidence_prediction(results)
                     logging.info(f"Got a high confidence score of {top_score} from dropout_v1_21")
-    logging.info(f"Got a high confidence score of {get_high_confidence_prediction(total_results)}")
+    top_score = get_high_confidence_prediction(total_results)
+    logging.info(f"Got a high confidence score of {top_score}")
 
     if top_score >= cutoff:
         with smart_open.open(zip_file, "wb") as zipf:
