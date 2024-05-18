@@ -408,7 +408,7 @@ if __name__ == '__main__':
     top_score = get_high_confidence_prediction(total_results)
     logging.info(f"Got a high confidence score of {top_score}")
 
-    if top_score >= cutoff:
+    if top_score >= cutoff - .1:
         with smart_open.open(zip_file, "wb") as zipf:
             with zipfile.ZipFile(zipf, mode="w", compression=zipfile.ZIP_DEFLATED) as archive:
                 for model_name, confidence in total_results["iptm+ptm"].items():
