@@ -376,7 +376,7 @@ def get_high_confidence_prediction(results: dict[str, Any]) -> float:
 
 if __name__ == '__main__':
     output_dir = sys.argv[1]
-    cutoff = float(sys.argv[2])
+    cutoff = .9
     fasta = sys.argv[3]
     zip_file = sys.argv[4]
     json_file = sys.argv[5]
@@ -416,7 +416,7 @@ if __name__ == '__main__':
     with smart_open.open(zip_file, "wb") as zipf:
         with zipfile.ZipFile(zipf, mode="w", compression=zipfile.ZIP_DEFLATED) as archive:
             for model_name, confidence in total_results["iptm+ptm"].items():
-                if confidence >= (cutoff - .1):
+                if confidence >= .7:
                     if os.path.exists(os.path.join(output_dir, "example", f"relaxed_{model_name}.pdb")):
                         archive.write(os.path.join(output_dir, "example", f"relaxed_{model_name}.pdb"), f"relaxed_{model_name}.pdb")
                     if os.path.exists(os.path.join(output_dir, "example", f"unrelaxed{model_name}.pdb")):
