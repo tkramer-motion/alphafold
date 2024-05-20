@@ -411,12 +411,12 @@ if __name__ == '__main__':
                         top_score = get_high_confidence_prediction(results)
                         logging.info(f"Got a high confidence score of {top_score} from dropout_v2_9")
     top_score = get_high_confidence_prediction(total_results)
-    logging.info(f"Got a high confidence score of {top_score}")
+    logging.info(f"Got a final high confidence score of {top_score}")
 
     with smart_open.open(zip_file, "wb") as zipf:
         with zipfile.ZipFile(zipf, mode="w", compression=zipfile.ZIP_DEFLATED) as archive:
             for model_name, confidence in total_results["iptm+ptm"].items():
-                if confidence >= cutoff - .1:
+                if confidence >= (cutoff - .1):
                     if os.path.exists(os.path.join(output_dir, "example", f"relaxed_{model_name}.pdb")):
                         archive.write(os.path.join(output_dir, "example", f"relaxed_{model_name}.pdb"), f"relaxed_{model_name}.pdb")
                     if os.path.exists(os.path.join(output_dir, "example", f"unrelaxed{model_name}.pdb")):
