@@ -223,11 +223,11 @@ class DataPipeline:
 
   def _all_seq_msa_features(self, input_fasta_path, msa_output_dir):
     """Get MSA features for unclustered uniprot, for pairing."""
-    out_path = os.path.join(msa_output_dir, 'uniprot_hits.sto')
+    out_path = os.path.join(msa_output_dir, 'uniprot_hits.a3m')
     result = pipeline.run_msa_tool(
-        self._uniprot_msa_runner, input_fasta_path, out_path, 'sto',
+        self._uniprot_msa_runner, input_fasta_path, out_path, 'a3m',
         self.use_precomputed_msas)
-    msa = parsers.parse_stockholm(result['sto'])
+    msa = parsers.parse_stockholm(result['a3m'])
     msa = msa.truncate(max_seqs=self._max_uniprot_hits)
     all_seq_features = pipeline.make_msa_features([msa])
     valid_feats = msa_pairing.MSA_FEATURES + (

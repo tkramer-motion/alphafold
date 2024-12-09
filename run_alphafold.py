@@ -253,7 +253,7 @@ def predict_structure(
 
   # Get features.
   t_0 = time.time()
-  feature_dict = data_pipeline.process(
+  feature_dict = data_pipeline.process_a3m(
       input_fasta_path=fasta_path,
       msa_output_dir=msa_output_dir)
   timings['features'] = time.time() - t_0
